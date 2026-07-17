@@ -18,7 +18,6 @@ function main(){
     canvas.width = rect.width;
     canvas.height = rect.height;
     
-    
     const gl = canvas.getContext("webgl");
     if (gl == null){
         alert("Unable to initialize WebGL. Your browser or machine may not support it.", );
@@ -75,10 +74,26 @@ function main(){
         rotationY += movementY * 0.01;
         drawScene(gl, programInfo, buffers, rotationX, rotationY);
     }
-    canvas.onmousemove = function (e) {
+
+    canvas.onmousedown = function (e) {
+        canvas.onmousemove = function (f) {
+            requestAnimationFrame(function() {
+                render(f.movementX, f.movementY)
+            }); 
+        }
+    }
+    canvas.onmouseup = function (e) {
+        canvas.onmousemove = function (f) {
+            requestAnimationFrame(function() {
+                render(0, 0)
+            }); 
+        }
+    }
+    canvas.onmouseleave = function (e) {
+        canvas.dispatchEvent(new MouseEvent("mouseup"));
         requestAnimationFrame(function() {
-            render(e.movementX, e.movementY)
-        }); 
+            render(0, 0)
+        });
     }
     requestAnimationFrame(function() {
         render(0, 0)

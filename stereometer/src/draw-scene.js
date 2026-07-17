@@ -20,8 +20,8 @@ function drawScene(gl, programInfo, buffers, rotationX, rotationY){
 
     const viewMatrix = mat4.create();
     mat4.translate(viewMatrix, viewMatrix, [0.0, 0.0, -6.0]);
-    mat4.rotate(viewMatrix, viewMatrix, rotationX, [1, 0, 1]);
-    mat4.rotate(viewMatrix, viewMatrix, rotationY, [0, 1, 1]);
+    mat4.rotate(viewMatrix, viewMatrix, rotationX, [0, 1, 0]);
+    mat4.rotate(viewMatrix, viewMatrix, rotationY, [1, 0, 0]);
 
     const modelMatrix = mat4.create();
         // identitetna matrica
