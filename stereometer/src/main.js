@@ -5,8 +5,10 @@ import { drawScene } from "./draw-scene"
  * @param {WebGLRenderingContext} gl
  */
 
-let rotationX = 0, rotationY = 0;
-let dx = 0, dy = 0;
+const INERTION = true;
+
+let rotationX = 0, rotationY = 0, rotationZ = 0;
+let radius = 5;
 
 main();
 
@@ -66,13 +68,12 @@ function main(){
         },
     }
 
-    const buffers = initBuffers(gl);
+    const buffers = initBuffers(gl, "The only cube", "red", 0.75);
 
-    let then = 0;
     function render(movementX, movementY){
         rotationX += movementX * 0.01
         rotationY += movementY * 0.01;
-        drawScene(gl, programInfo, buffers, rotationX, rotationY);
+        drawScene(gl, programInfo, buffers, radius, rotationX, rotationY);
     }
 
     canvas.onmousedown = function (e) {
@@ -95,20 +96,20 @@ function main(){
             render(0, 0)
         });
     }
+ 
+    canvas.onwheel = function (e){
+        radius += 0.5 * Math.sign(e.deltaY);
+        requestAnimationFrame(function() {
+            render(0, 0)
+        });
+    }
+
     requestAnimationFrame(function() {
         render(0, 0)
     });
     
     document.getElementById("draw-area").appendChild(canvas);
 
-}
-
-function getDelta(e, oldX, rectLeft, oldY, rectTop){
-    dx = e.clientX - rectLeft - oldX;
-    dy = e.clientY - rectTop - oldY;
-    return {
-
-    }
 }
 
 function initShaderProgram(gl, vSource, fSource){

@@ -4,7 +4,7 @@ import { mat4 } from "gl-matrix"
  * @param {WebGLRenderingContext} gl
  */
 
-function drawScene(gl, programInfo, buffers, rotationX, rotationY){
+function drawScene(gl, programInfo, buffers, radius, rotationX, rotationY){
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clearDepth(1.0);
     gl.enable(gl.DEPTH_TEST);
@@ -19,9 +19,28 @@ function drawScene(gl, programInfo, buffers, rotationX, rotationY){
     mat4.perspective(projectionMatrix, fieldOfView, aspect, zNear, zFar);
 
     const viewMatrix = mat4.create();
-    mat4.translate(viewMatrix, viewMatrix, [0.0, 0.0, -6.0]);
-    mat4.rotate(viewMatrix, viewMatrix, rotationX, [0, 1, 0]);
-    mat4.rotate(viewMatrix, viewMatrix, rotationY, [1, 0, 0]);
+    mat4.lookAt(viewMatrix, [-rotationX*radius, rotationY*radius, radius], [0, 0, 0], [0, 1, 0]);
+        // ovo se i udaljava i približava kako se okreće
+        // <= kružnica kojoj je središte u [0, 0, radius]
+        
+    // mat4.translate(viewMatrix, viewMatrix, [0.0, 0.0, -radius]);
+    // mat4.rotate(viewMatrix, viewMatrix, rotationX, [0, 1, 0]);
+    // mat4.rotate(viewMatrix, viewMatrix, rotationY, [1, 0, 0]);
+    //mat4.rotate(viewMatrix, viewMatrix, rotationZ, [0, 0, 1]);
+
+    /* const cameraPos = vec3.fromValues(0, 0, -radius);
+        // pozicija kamere se mijenja, očito
+    const cameraTarget = vec3.fromValues(0, 0, 0);
+        // uvijek će biti ishodište*, imenovano je da znam
+        // *TO-DO: da se može promijeniti u kodu
+    const cameraDirection = vec3.normalize(
+        vec3.subtract(cameraPos, cameraTarget));
+    const worldUp = vec3.fromValues(0, 1, 0);
+    const cameraUp = vec3.normalize(
+        vec3.cross(worldUp, cameraDirection));
+    const cameraUp = vec3.cross(cameraDirection, cameraRight); */
+
+    
 
     const modelMatrix = mat4.create();
         // identitetna matrica
