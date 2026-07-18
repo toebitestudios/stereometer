@@ -1,0 +1,23 @@
+*{
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body{
+    display: grid;
+    grid-template-columns: 65fr 35fr;
+    width: 100vw;
+    height: 100vh;
+    padding: 1.0rem;
+}
+
+#draw-area{
+    width: 100%;
+    height: 100%;
+    margin: 0.0rem;
+}
+
+#code-area{
+    margin: 0.0rem;
+}
