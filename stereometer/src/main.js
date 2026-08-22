@@ -1,143 +1,47 @@
-import { initBuffers } from "./init-buffers"
-import { drawScene } from "./draw-scene"
+import * as THREE from 'three';
+import { drawCube } from './cube'
+import { parse } from './parser'
+import { view } from './editor'
 
-/**
- * @param {WebGLRenderingContext} gl
- */
+let rect = document.getElementById("draw-area").getBoundingClientRect();
 
-const INERTION = true;
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(
+    75, rect.width / rect.height, 0.1, 1000);
 
-let rotationX = 0, rotationY = 0, rotationZ = 0;
-let radius = 5;
+const renderer = new THREE.WebGLRenderer();
+renderer.setSize(rect.width, rect.height);
+document.getElementById("draw-area").appendChild(renderer.domElement);
 
-main();
+/* -    -   -   -   -   -   -   - */
 
-function main(){
-    const canvas = document.createElement("canvas");
+let command = parse("cube ABCD_A1B1C1D1(color: blue);\nline AD(yellow);");
 
-    let rect = document.getElementById("draw-area").getBoundingClientRect();
-    //let w = document.getElementById("draw-area").offsetWidth;
-    canvas.width = rect.width;
-    canvas.height = rect.height;
-    
-    const gl = canvas.getContext("webgl");
-    if (gl == null){
-        alert("Unable to initialize WebGL. Your browser or machine may not support it.", );
-        return;
-    }
+let cube = drawCube("ABCD", 1);
+scene.add(cube);
 
-    gl.clearColor(0.0, 0.0, 0.0, 1.0);
-    gl.clear(gl.COLOR_BUFFER_BIT);
+const lineMaterial = new THREE.LineBasicMaterial( { color: 0x0000ff } );
+const points = []
+points.push( new THREE.Vector3(-2, 0, 0) );
+points.push( new THREE.Vector3(0, 2, 0) );
+points.push( new THREE.Vector3(2, 0, 0) );
+points.push( new THREE.Vector3(0, -2, 0) );
+points.push( new THREE.Vector3(-2, 0, 0) );
+const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
+const line = new THREE.Line(lineGeometry, lineMaterial);
+scene.add(line);
 
-    const vsSource = /*glsl*/`
-        attribute vec4 aVertexPosition;
-        attribute vec4 aVertexColor;
+camera.position.z = 5;
 
-        uniform mat4 uModel;
-        uniform mat4 uView;
-        uniform mat4 uProjection;
-
-        varying lowp vec4 vColor;
-
-        void main(){
-            gl_Position = uProjection * uView * uModel * aVertexPosition;
-            vColor = aVertexColor;
-        }
-    `;
-
-    const fsSource = /*glsl*/`
-        varying lowp vec4 vColor;
-        
-        void main() {
-            gl_FragColor = vColor;
-        }
-    `;
-
-    const shaderProgram = initShaderProgram(gl, vsSource, fsSource);
-
-    const programInfo = {
-        program: shaderProgram,
-        attribLocations:{
-            vertexPosition: gl.getAttribLocation(shaderProgram, "aVertexPosition"),
-            vertexColor: gl.getAttribLocation(shaderProgram, "aVertexColor"),
-        },
-        uniformLocations:{
-            projectionMatrix: gl.getUniformLocation(shaderProgram, "uProjection"),
-            viewMatrix: gl.getUniformLocation(shaderProgram, "uView"),
-            modelMatrix: gl.getUniformLocation(shaderProgram, "uModel"),
-        },
-    }
-
-    const buffers = initBuffers(gl, "The only cube", "red", 0.75);
-
-    function render(movementX, movementY){
-        rotationX += movementX * 0.01
-        rotationY += movementY * 0.01;
-        drawScene(gl, programInfo, buffers, radius, rotationX, rotationY);
-    }
-
-    canvas.onmousedown = function (e) {
-        canvas.onmousemove = function (f) {
-            requestAnimationFrame(function() {
-                render(f.movementX, f.movementY)
-            }); 
-        }
-    }
-    canvas.onmouseup = function (e) {
-        canvas.onmousemove = function (f) {
-            requestAnimationFrame(function() {
-                render(0, 0)
-            }); 
-        }
-    }
-    canvas.onmouseleave = function (e) {
-        canvas.dispatchEvent(new MouseEvent("mouseup"));
-        requestAnimationFrame(function() {
-            render(0, 0)
-        });
-    }
- 
-    canvas.onwheel = function (e){
-        radius += 0.5 * Math.sign(e.deltaY);
-        requestAnimationFrame(function() {
-            render(0, 0)
-        });
-    }
-
-    requestAnimationFrame(function() {
-        render(0, 0)
-    });
-    
-    document.getElementById("draw-area").appendChild(canvas);
-
+function animate(time){
+    cube.rotation.x = time / 2000;
+    cube.rotation.y = time / 1000;
+    line.rotation.x = time / 2000;
+    line.rotation.y = time / 1000;
+    renderer.render(scene, camera);
 }
+renderer.setAnimationLoop(animate);
 
-function initShaderProgram(gl, vSource, fSource){
-    const vertexShader = loadShader(gl, gl.VERTEX_SHADER, vSource);
-    const fragmentShader = loadShader(gl, gl.FRAGMENT_SHADER, fSource);
+/* -    -   -   -   -   -   - */
 
-    const shaderProgram = gl.createProgram();
-    gl.attachShader(shaderProgram, vertexShader);
-    gl.attachShader(shaderProgram, fragmentShader);
-    gl.linkProgram(shaderProgram);
-    if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)){
-        alert(`Unable to initialize the shader program: ${gl.getProgramInfoLog(shaderProgram,)}`,);
-        return null;
-    }
-
-    return shaderProgram;
-}
-
-function loadShader(gl, type, source){
-    const shader = gl.createShader(type);
-
-    gl.shaderSource(shader, source);
-    gl.compileShader(shader);
-    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-        alert(`An error occurred compiling the shaders: ${gl.getShaderInfoLog(shader)}`,);
-        gl.deleteShader(shader);
-        return null;
-    }
-
-    return shader;
-}
+const editor = document.getElementById("code-area");
