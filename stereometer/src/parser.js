@@ -25,33 +25,6 @@ async function matchExpression(str, exp, msg){
     return Promise.resolve(match)
 }
 
-function getParams(str){
-    let vertices = null, length = null, color = null;
-    let params = str.split(/\s*,\s*/)
-    if (params && params[0] != ""){
-        for (let param of params){
-            if (!vertices){ 
-                vertices = [...param.match(verticesExp)][0];
-                continue;
-            }
-            if (!length){
-                length = [...param.match(lengthExp)][0];
-                continue;
-            } 
-            if (!color){
-                color = [...param.match(colorExp)][0];
-                continue;
-            } 
-        }
-    }
-    return {
-        vertices: vertices,
-        length: length,
-        color: color
-    }
-    
-}
-
 async function parse(source){
     let lines = source.split(/\s*;\s*/);
     let commands = [];
@@ -66,7 +39,6 @@ async function parse(source){
         }};
     let params = Object.entries(paramsExps);
     for (let line of lines.slice(0,-1)){
-        console.log(line)
         try{
 
             await matchExpression(
@@ -75,7 +47,6 @@ async function parse(source){
                 currentCommand.geometry = res.groups.geometry;
                 tempCommand = res.groups;
                 tempCommand.params = tempCommand.params.split(/\s*,\s*/);
-                console.log(tempCommand)
             })
 
             for (let g in verticesExps){
@@ -115,9 +86,9 @@ async function parse(source){
         }catch(err){
             console.log(err)
         }
-        console.log(currentCommand)
     }
-    console.log(commands)
+    return commands
+    //console.log(commands)
 }
 
 export { parse }
