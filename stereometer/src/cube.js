@@ -1,36 +1,102 @@
 import * as THREE from 'three'
 
-const vertexName = /[A-Z][0-9]?|_/g;
+const world = {
+    O: [0, 0, 0],
 
-function drawCube(name, length){
-    const geometry = new THREE.BoxGeometry(length, length, length);
-    const material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
-    const cube = new THREE.Mesh(geometry, material);
-
-    let vertexNames = [...name.matchAll(vertexName)];
-    let center = cube.position;
-    let start = {
-        x: center.x - length/2,
-        y: center.y - length/2,
-        z: center.z + length/2
+    toString(){
+        let s = ""
+        for (let v of Object.entries(this)){
+            s = s + v[0] + ": " + v[1] + "\n"
+        }
+        return s
     }
-    let vertices = [
-        start.x, start.y, start.z,
-        start.x + length, start.y, start.z,
-        start.x + length, start.y, start.z - length,
-        start.x, start.y, start.z - length,
+}
 
-        start.x, start.y + length, start.z,
-        start.x + length, start.y + length, start.z,
-        start.x + length, start.y + length, start.z - length,
-        start.x, start.y + length, start.z - length
+
+
+const abstractCube = [
+    -1, -1, 1,
+    1, -1, 1, 
+    1, -1, -1,
+    -1, -1, -1,
+
+    -1, 1, 1,
+    1, 1, 1, 
+    1, 1, -1,
+    -1, 1, -1
+];
+
+
+// TO-DO:
+// provjera slaže li se poredak vrhova
+function generateCubeCoords(...vertices){
+    let translationVector = [0, 0, 0]
+    let firstPoint;
+    for (let i = 0; i < 8; i++){
+        firstPoint = world[vertices[i]]
+        if (firstPoint){
+            translationVector = [
+                firstPoint[0] - abstractCube[i*3 + 0],
+                firstPoint[1] - abstractCube[i*3 + 1],
+                firstPoint[2] - abstractCube[i*3 + 2]
+            ]
+            break;
+        }
+    }
+
+    let coords = []
+    let temp = [0, 0, 0];
+    for (let i = 0; i < 8; i++){
+        temp = [
+            abstractCube[i*3+0] + translationVector[0],
+            abstractCube[i*3+1] + translationVector[1],
+            abstractCube[i*3+2] + translationVector[2]
+        ]
+        coords.push(...temp)
+        if (!world[vertices[i]]){ 
+            world[vertices[i]] = temp
+        }
+    }
+
+    let center = [
+        (coords[0*3 + 0] + coords[6*3 + 0])/2.0,
+        (coords[0*3 + 1] + coords[6*3 + 1])/2.0,
+        (coords[0*3 + 2] + coords[6*3 + 2])/2.0
     ]
+    let edgeLength = Math.abs(coords[0*3 + 0] - coords[1*3 + 0]);
 
+    return {
+        coords: coords,
+        center: center,
+        edgeLength: edgeLength
+    }
+
+}
+
+// front/back side, fog/fogexp2 s raznim parametrima, opacity, css background
+// -> za najbolji izgled
+// => fog: on/off da korisnik može
+
+function drawCube(color, ...verticesNames){
+    let cubeInfo = generateCubeCoords(...verticesNames);
+    const geometry = new THREE.BoxGeometry(cubeInfo.edgeLength, cubeInfo.edgeLength, cubeInfo.edgeLength);
+    const material = new THREE.MeshBasicMaterial( {
+        color: color, 
+        transparent: true,
+        opacity: 0.8,
+        side: THREE.BackSide
+    } );
+    const cube = new THREE.Mesh(geometry, material);
+    cube.position.set(...cubeInfo.center)
+
+    const edges = new THREE.EdgesGeometry(geometry)
+    const lines = new THREE.LineSegments(edges, new THREE.LineBasicMaterial( { color: 0x000000 } ))
+    lines.position.set(...cubeInfo.center)
     
-
-    //console.log(vertices);
-    return cube
-
+    return {
+        sides: cube,
+        edges: lines
+    }
 }
 
 export { drawCube };
