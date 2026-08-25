@@ -18,7 +18,8 @@ document.getElementById("draw-area").appendChild(renderer.domElement);
 
 /* -    -   -   -   -   -   -   - */
 
-let command = parse("cube ABCD_A1B1C1D1(color: blue);\nline AD(yellow);");
+let commands = await parse("cube ABCD_A1B1C1D1(color: blue);\nline AD(yellow);\nI = 0.5*AB;");
+console.log(commands)
 
 let cube1 = drawCube(0x00ff00, "A", "B", "C", "D", "A1", "B1", "C1", "D1");
 scene.add(cube1.sides);
