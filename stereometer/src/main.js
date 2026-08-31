@@ -32,10 +32,19 @@ let cube2 = drawCube(0xffff00, "B", "E", "F", "C", "B1", "E1", "F1", "C1");
 scene.add(cube2.sides);
 scene.add(cube2.edges);
 try{
-    let p = newPoint("C", 0.5, "A", "B")
+    let p1= newPoint("I", 0.5, "A", "D")
+    let p2 = newPoint("I1", 3/4, "A", "F1")
+    scene.add(p1.point)
+    scene.add(p1.line)
+    scene.add(p2.point)
+    scene.add(p2.line)
 }catch (err){
     console.log(err)
 }
+
+let smallCube = drawCube(0x0000ff, "G", "H", "A", "J", "G1", "H1", "A1", "J1");
+scene.add(smallCube.sides);
+scene.add(smallCube.edges);
 
 let names = rednerPoints()
 for (let name of names){
