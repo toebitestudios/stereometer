@@ -10,7 +10,7 @@ import { rednerPoints } from './points'
 let rect = document.getElementById("draw-area").getBoundingClientRect();
 
 const scene = new THREE.Scene();
-scene.fog = new THREE.FogExp2(0xcccccc, 0.125);
+scene.fog = new THREE.FogExp2(0xcccccc, 0.05);
 
 const camera = new THREE.PerspectiveCamera(
     75, rect.width / rect.height, 0.1, 1000);
@@ -32,7 +32,7 @@ let cube2 = drawCube(0xffff00, "B", "E", "F", "C", "B1", "E1", "F1", "C1");
 scene.add(cube2.sides);
 scene.add(cube2.edges);
 try{
-    let p1= newPoint("I", 0.5, "A", "D")
+    let p1= newPoint("J", 0.5, "A", "D")
     let p2 = newPoint("I1", 3/4, "A", "F1")
     scene.add(p1.point)
     scene.add(p1.line)
@@ -42,7 +42,7 @@ try{
     console.log(err)
 }
 
-let smallCube = drawCube(0x0000ff, "G", "H", "A", "J", "G1", "H1", "A1", "J1");
+let smallCube = drawCube(0x0000ff, "A", "G", "J", "H", "A1", "G1", "J1", "H1");
 scene.add(smallCube.sides);
 scene.add(smallCube.edges);
 

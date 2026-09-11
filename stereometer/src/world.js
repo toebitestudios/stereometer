@@ -1,5 +1,13 @@
 const world = {
-    O: [0, 0, 0],
+    points: {
+        O: new Float32Array([0, 0, 0]),
+    },
+    lines: {
+
+    },
+    planes: {
+
+    }
 
     /*toString(){
         let s = ""
