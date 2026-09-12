@@ -73,7 +73,8 @@ async function parseFunction(line){
         }
 
     }catch(err){
-        console.log(err)
+        // console.log(err)
+        return err
     }
 
     return {
@@ -91,7 +92,8 @@ async function parseEquation(line){
             eq = res.groups;
         })
     }catch (err){
-        console.log(err)
+        // console.log(err)
+        return err
     }
     return eq;
 }
@@ -110,7 +112,8 @@ async function parse(source){
             }
         }
     }catch (err){
-        console.log(err)
+        //console.log(err)
+        return err
     }
     
     return commands

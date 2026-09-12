@@ -4,13 +4,12 @@ import { drawCube } from './cube'
 import { parse } from './parser'
 import { newPoint } from './line'
 import { world } from './world'
-import { Text } from 'troika-three-text'
 import { rednerPoints } from './points'
   
 let rect = document.getElementById("draw-area").getBoundingClientRect();
 
 const scene = new THREE.Scene();
-scene.fog = new THREE.FogExp2(0xcccccc, 0.125);
+scene.fog = new THREE.FogExp2(0xcccccc, 0.05);
 
 const camera = new THREE.PerspectiveCamera(
     75, rect.width / rect.height, 0.1, 1000);
@@ -32,10 +31,23 @@ let cube2 = drawCube(0xffff00, "B", "E", "F", "C", "B1", "E1", "F1", "C1");
 scene.add(cube2.sides);
 scene.add(cube2.edges);
 try{
-    let p = newPoint("C", 0.5, "A", "B")
+    let p1= newPoint("J", 0.5, "A", "D")
+    let p2 = newPoint("I1", 3/4, "A", "F1")
+    scene.add(p1.point)
+    scene.add(p1.line)
+    scene.add(p2.point)
+    scene.add(p2.line)
 }catch (err){
     console.log(err)
 }
+
+let smallCube = drawCube(0x0000ff, "A", "G", "J", "H", "A1", "G1", "J1", "H1");
+scene.add(smallCube.sides);
+scene.add(smallCube.edges);
+
+let bigCube = drawCube(0xffaa00, "M", "N", "R", "P", "A", "E", "K", "L");
+scene.add(bigCube.sides);
+scene.add(bigCube.edges);
 
 let names = rednerPoints()
 for (let name of names){
@@ -44,9 +56,9 @@ for (let name of names){
 }
 
 const controls = new OrbitControls(camera, renderer.domElement);
-camera.position.z = 3;
-camera.position.y = 3;
-camera.position.x = 3;
+camera.position.z = 2;
+camera.position.y = 2;
+camera.position.x = 2;
 camera.lookAt(0, 0, 0);
 controls.update();
 
