@@ -46,6 +46,10 @@ let smallCube = drawCube(0x0000ff, "A", "G", "J", "H", "A1", "G1", "J1", "H1");
 scene.add(smallCube.sides);
 scene.add(smallCube.edges);
 
+let bigCube = drawCube(0xffaa00, "M", "N", "R", "P", "A", "E", "K", "L");
+scene.add(bigCube.sides);
+scene.add(bigCube.edges);
+
 let names = rednerPoints()
 for (let name of names){
     scene.add(name)
@@ -53,9 +57,9 @@ for (let name of names){
 }
 
 const controls = new OrbitControls(camera, renderer.domElement);
-camera.position.z = 3;
-camera.position.y = 3;
-camera.position.x = 3;
+camera.position.z = 2;
+camera.position.y = 2;
+camera.position.x = 2;
 camera.lookAt(0, 0, 0);
 controls.update();
 
