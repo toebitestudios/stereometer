@@ -4,7 +4,6 @@ import { drawCube } from './cube'
 import { parse } from './parser'
 import { newPoint } from './line'
 import { world } from './world'
-import { Text } from 'troika-three-text'
 import { rednerPoints } from './points'
   
 let rect = document.getElementById("draw-area").getBoundingClientRect();

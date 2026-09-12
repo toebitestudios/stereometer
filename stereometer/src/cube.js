@@ -70,9 +70,6 @@ function findLines(vertices){
         }
     }
 
-    console.log(cubePoints, lines)
-    // OK
-
     return {
         cubePoints: cubePoints,
         lines: lines
@@ -171,7 +168,6 @@ function generateCubeCoords(...vertices){
         }
     }
     
-    console.log(coords)
     return transform
 
 }
@@ -191,13 +187,8 @@ function drawCube(color, ...verticesNames){
         side: THREE.BackSide
     } );
     const cube = new THREE.Mesh(geometry, material);
-    //cube.applyMatrix4(transform);
-    //cube.position.set(...cubeInfo.center)
     const edges = new THREE.EdgesGeometry(geometry)
     const lines = new THREE.LineSegments(edges, new THREE.LineBasicMaterial( { color: 0x000000 } ))
-    //lines.position.set(...cubeInfo.center)
-    
-    //console.log(world)
 
     return {
         sides: cube,

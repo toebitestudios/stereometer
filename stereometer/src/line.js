@@ -19,7 +19,7 @@ function newPoint(name, factor, p, q){
 
     const pointGeom = new THREE.BufferGeometry()
     pointGeom.setAttribute('position', new THREE.BufferAttribute(newP, 3));
-    const pointMat = new THREE.PointsMaterial({color: 0x000000, size: 0.1, sizeAttenuation: true});
+    const pointMat = new THREE.PointsMaterial({color: 0x000000, size: 0.075, sizeAttenuation: true});
     const point = new THREE.Points(pointGeom, pointMat)
 
     const lineMat = new THREE.LineBasicMaterial({color: 0x000000});
