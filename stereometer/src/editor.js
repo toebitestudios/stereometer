@@ -6,7 +6,7 @@ const updateListener = EditorView.updateListener.of(update => {
     if (!update.docChanged) return
 
     const source = update.state.doc.toString();
-    if (source[source.length - 1] == ";"){
+    if (source[source.length - 1] == "\n"){
         parse(source).then(
             (resolve) => {
                 console.log(resolve)

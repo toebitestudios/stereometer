@@ -176,19 +176,28 @@ function generateCubeCoords(...vertices){
 // -> za najbolji izgled
 // => fog: on/off da korisnik može
 
-function drawCube(color, ...verticesNames){
+// drawCube() -> cube()
+function cube(color, ...verticesNames){
+    console.log(arguments)
     let transform = generateCubeCoords(...verticesNames);
     const geometry = new THREE.BoxGeometry();
     geometry.applyMatrix4(transform)
     const material = new THREE.MeshBasicMaterial( {
         color: color, 
         transparent: true,
-        opacity: 0.75,
+        opacity: 0.5,
         side: THREE.BackSide
     } );
+    console.log(material)
     const cube = new THREE.Mesh(geometry, material);
     const edges = new THREE.EdgesGeometry(geometry)
-    const lines = new THREE.LineSegments(edges, new THREE.LineBasicMaterial( { color: 0x000000 } ))
+    const lines = new THREE.LineSegments(edges, 
+        new THREE.LineBasicMaterial( {
+            color: 0x000000, 
+            fog: false,
+            linewidth: 1
+            } )
+    )
 
     return {
         sides: cube,
@@ -196,4 +205,4 @@ function drawCube(color, ...verticesNames){
     }
 }
 
-export { drawCube };
+export { cube };

@@ -98,17 +98,32 @@ async function parseEquation(line){
     return eq;
 }
 
+// class ParsedCommand {
+//     constructor(geometry, vertices, color){
+//         this.geometry = geometry;
+//         this.vertices = vertices;
+//         this.color = color;
+//     }
+// }
+
 async function parse(source){
     let lines = source.split(/\s*;\s*/);
     let commands = []
+    let commandObjects = []
     try{
         for (let line of lines.slice(0, -1)){
             if (line.includes("=")){
                 await parseEquation(line)
-                    .then(res => commands.push(res))
+                    .then(res => {
+                        commands.push(res)
+                        console.log(commands)
+                    })
             }else{
                 await parseFunction(line)
-                    .then(res => commands.push(res))
+                    .then(res => {
+                        commands.push(res)
+                        console.log(commands)
+                    })
             }
         }
     }catch (err){
