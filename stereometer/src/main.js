@@ -1,13 +1,23 @@
 import * as THREE from 'three';
-import { SVGRenderer } from 'three/addons/renderers/SVGRenderer.js'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
 import { cube } from './cube'
 import { parse } from './parser'
-import { newPoint } from './line'
+import { point } from './line'
 import { world } from './world'
 import { rednerPoints } from './points'
 import { renderScene } from './caller'
+
+import { basicSetup } from "codemirror"
+import { EditorView } from "@codemirror/view"
+// import { parse } from "./parser"
+// import { renderScene } from "./caller"
   
+class UnexpectedError extends Error{
+    constructor(name, message){
+        super();
+    }
+}
+
 let rect = document.getElementById("draw-area").getBoundingClientRect();
 
 const scene = new THREE.Scene();
@@ -30,13 +40,22 @@ document.getElementById("draw-area").appendChild(renderer.domElement);
 
 let commands = await parse(
     `cube ABCD_A1B1C1D1(color: blue);
-    cube BEFC_B1E1F1C1(color: orange);`
+    H = 5/6 * DB1;
+    cube DHIJ_D1B1C1D1(color: green);`
 );
-let objects = renderScene(commands)
-for (let object of objects){
-    scene.add(object.sides)
-    scene.add(object.edges)
-}
+// let objects = renderScene(commands)
+// for (let object of objects){
+//     console.log(object)
+//     if (object.geometry == "body"){
+//         scene.add(object.edges)
+//         scene.add(object.sides)
+//     }else if (object.geometry == "point"){
+//         scene.add(object.point)
+//         scene.add(object.line)
+//     }else{
+//         throw new UnexpectedError("name?", "Non existant geometry parsed.")
+//     }
+// }
 
 // let cube1 = cube(0x00ff00, "A", "B", "C", "D", "A1", "B1", "C1", "D1");
 // scene.add(cube1.sides);
@@ -63,6 +82,8 @@ for (let object of objects){
 // scene.add(bigCube.sides);
 // scene.add(bigCube.edges);
 
+/* -    -   -   -   -   -   --  -   */
+
 let names = rednerPoints()
 for (let name of names){
     scene.add(name)
@@ -76,12 +97,6 @@ controls.update();
 
 console.log(world.toString())
 
-/*controls.addEventListener('change', () => {
-    names.forEach(p => p.quaternion.copy(camera.quaternion))
-    renderer.render(scene, camera);
-})
-renderer.render(scene, camera);*/
-
 function animate(time){
     controls.update();
     names.forEach(p => p.quaternion.copy(camera.quaternion))
@@ -92,4 +107,42 @@ renderer.setAnimationLoop(animate);
 
 /* -    -   -   -   -   -   - */
 
-const editor = document.getElementById("code-area");
+const updateListener = EditorView.updateListener.of(update => {
+    if (!update.docChanged) return
+
+    const source = update.state.doc.toString();
+    if (source[source.length - 1] == "\n"){
+        parse(source).then(
+            (resolve) => {
+                scene.clear();
+                let objects = renderScene(resolve);
+                for (let object of objects){
+                    console.log(object)
+                    if (object.geometry == "body"){
+                        scene.add(object.edges)
+                        scene.add(object.sides)
+                    }else if (object.geometry == "point"){
+                        scene.add(object.point)
+                        scene.add(object.line)
+                    }else{
+                        throw new UnexpectedError("name?", "Non existant geometry parsed.")
+                    }
+                }
+                names = rednerPoints();
+                for (let name of names)
+                    scene.add(name)
+            },
+            (reject) => {
+                console.log(reject)
+            }
+        )
+    }
+
+    
+})
+
+const view = new EditorView({
+    doc: "cube ABCD_A1B1C1D1(color: blue);",
+    parent: document.getElementById("code-area"),
+    extensions: [basicSetup, updateListener]
+})

@@ -1,5 +1,6 @@
 const commandExp = /(?<geometry>(cube)|(line))\s+(?<vertices>[A-Z0-9_]+)\s*\((?<params>.*)\)/s;
 
+// dodaj i 0, tj. da se i ishodište može koristiti kao vrh
 const verticesExps = {
     cube: /^(?:[A-Z][0-9]?){4}_?(?:(?:[A-Z][0-9]?){4})?$/,
     line: /^[A-Z][0-9]?_?[A-Z][0-9]?$/
@@ -12,6 +13,8 @@ const paramsExps = {
 
 // TO-DO: doda jda imena točki mogu sadržavati i '
 const lineOperationsExp = /(?<newPoint>[A-Z][0-9]?)\s*=\s*(?<factor>([0-9]*\.?[0-9]+)|([0-9]* [0-9]+\/[0-9]+))\s*\*?\s*(?<line>[A-Z][0-9]?_?[A-Z][0-9]?)/;
+
+
 
 function splitVertices(str){
     let vertices = [];
@@ -85,7 +88,14 @@ async function parseFunction(line){
 }
 
 async function parseEquation(line){
-    let eq;
+    let eq /* = {
+        geometry: "point",
+        vertices: null,
+        params: {
+            factor: 1,
+            line: null
+        }
+    };*/
     try{
         await matchExpression(line, lineOperationsExp, "Incorrect equation.")
         .then(res => {
@@ -134,4 +144,4 @@ async function parse(source){
     return commands
 }
 
-export { parse }
+export { parse, splitVertices }

@@ -178,7 +178,6 @@ function generateCubeCoords(...vertices){
 
 // drawCube() -> cube()
 function cube(color, ...verticesNames){
-    console.log(arguments)
     let transform = generateCubeCoords(...verticesNames);
     const geometry = new THREE.BoxGeometry();
     geometry.applyMatrix4(transform)
@@ -188,18 +187,18 @@ function cube(color, ...verticesNames){
         opacity: 0.5,
         side: THREE.BackSide
     } );
-    console.log(material)
     const cube = new THREE.Mesh(geometry, material);
     const edges = new THREE.EdgesGeometry(geometry)
     const lines = new THREE.LineSegments(edges, 
         new THREE.LineBasicMaterial( {
             color: 0x000000, 
             fog: false,
-            linewidth: 1
+            linewidth: 1 //drukčije ne može
             } )
     )
 
     return {
+        geometry: "body",
         sides: cube,
         edges: lines
     }

@@ -1,20 +1,23 @@
 import { cube } from "./cube"
-
-function call(geometry, vertices, color){
-    
-}
+import { point } from "./line"
+import { splitVertices } from "./parser"
 
 var callbacks = {
-    cube: cube
+    cube: cube,
+
 }
 
 function renderScene(commands){
     let objects = []
     for (let command of commands){
-        // `${command.geometry}`.apply(null, command.color, command.vertices)
-        // `${command.geometry}`(command.color, command.vertices);
-        // window[func](command.color, command.vertices);
-        objects.push(callbacks[command.geometry](command.params.color, ...command.vertices))
+        if (command.geometry)
+            objects.push(callbacks[command.geometry](command.params.color, ...command.vertices))
+        else if (command.newPoint){
+            let [p, q] = splitVertices(command.line);
+            objects.push(point(
+                command.newPoint, command.factor, p, q
+            ))
+        }
     }
     return objects
 }

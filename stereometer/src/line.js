@@ -5,11 +5,14 @@ function newLine(p, q){
     
 }
 
-function newPoint(name, factor, p, q){
+function point(name, factor, p, q){
     if (Object.hasOwn(world.points, name)){ 
         throw new Error("Point " + name + " already exists.");
         return;
     }
+
+    factor = eval(scriptPolicy.createScript(factor))
+    // pazi na eval !!!
 
     let newP = new Float32Array(3);
     for (let i = 0; i < 3; i++){
@@ -23,21 +26,51 @@ function newPoint(name, factor, p, q){
     const point = new THREE.Points(pointGeom, pointMat)
 
     const lineMat = new THREE.LineBasicMaterial({color: 0x000000});
-    const lineGeom = new THREE.BufferGeometry().setFromPoints(
-        [new THREE.Vector3(
+
+    let fromPoints = [];
+    if (factor >= 0 && factor <= 1){
+        fromPoints.push(new THREE.Vector3(
             world.points[p][0],
             world.points[p][1],
-            world.points[p][2]), 
-        new THREE.Vector3(
+            world.points[p][2])
+        );
+        fromPoints.push(new THREE.Vector3(
             world.points[q][0],
             world.points[q][1],
-            world.points[q][2])])
+            world.points[q][2])
+        );
+    }else if (factor > 1){
+        fromPoints.push(new THREE.Vector3(
+            world.points[p][0],
+            world.points[p][1],
+            world.points[p][2])
+        );
+        fromPoints.push(new THREE.Vector3(
+            newP[0],
+            newP[1],
+            newP[2])
+        );
+    }else{
+        fromPoints.push(new THREE.Vector3(
+            world.points[q][0],
+            world.points[q][1],
+            world.points[q][2])
+        );
+        fromPoints.push(new THREE.Vector3(
+            newP[0],
+            newP[1],
+            newP[2])
+        );
+    }
+
+    const lineGeom = new THREE.BufferGeometry().setFromPoints(fromPoints)
     const line = new THREE.Line(lineGeom, lineMat);
 
     return {
+        geometry: "point",
         point: point,
         line: line
     }
 }
 
-export { newPoint }
+export { point }
