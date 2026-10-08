@@ -1,5 +1,6 @@
 const commandExp = /(?<geometry>(cube)|(line))\s+(?<vertices>[A-Z0-9_]+)\s*\((?<params>.*)\)/s;
 
+// dodaj i 0, tj. da se i ishodište može koristiti kao vrh
 const verticesExps = {
     cube: /^(?:[A-Z][0-9]?){4}_?(?:(?:[A-Z][0-9]?){4})?$/,
     line: /^[A-Z][0-9]?_?[A-Z][0-9]?$/
@@ -12,6 +13,8 @@ const paramsExps = {
 
 // TO-DO: doda jda imena točki mogu sadržavati i '
 const lineOperationsExp = /(?<newPoint>[A-Z][0-9]?)\s*=\s*(?<factor>([0-9]*\.?[0-9]+)|([0-9]* [0-9]+\/[0-9]+))\s*\*?\s*(?<line>[A-Z][0-9]?_?[A-Z][0-9]?)/;
+
+
 
 function splitVertices(str){
     let vertices = [];
@@ -85,7 +88,14 @@ async function parseFunction(line){
 }
 
 async function parseEquation(line){
-    let eq;
+    let eq /* = {
+        geometry: "point",
+        vertices: null,
+        params: {
+            factor: 1,
+            line: null
+        }
+    };*/
     try{
         await matchExpression(line, lineOperationsExp, "Incorrect equation.")
         .then(res => {
@@ -98,17 +108,32 @@ async function parseEquation(line){
     return eq;
 }
 
+// class ParsedCommand {
+//     constructor(geometry, vertices, color){
+//         this.geometry = geometry;
+//         this.vertices = vertices;
+//         this.color = color;
+//     }
+// }
+
 async function parse(source){
     let lines = source.split(/\s*;\s*/);
     let commands = []
+    let commandObjects = []
     try{
         for (let line of lines.slice(0, -1)){
             if (line.includes("=")){
                 await parseEquation(line)
-                    .then(res => commands.push(res))
+                    .then(res => {
+                        commands.push(res)
+                        console.log(commands)
+                    })
             }else{
                 await parseFunction(line)
-                    .then(res => commands.push(res))
+                    .then(res => {
+                        commands.push(res)
+                        console.log(commands)
+                    })
             }
         }
     }catch (err){
@@ -119,4 +144,4 @@ async function parse(source){
     return commands
 }
 
-export { parse }
+export { parse, splitVertices }
