@@ -11,7 +11,7 @@ function point(name, factor, p, q){
         return;
     }
 
-    factor = eval(scriptPolicy.createScript(factor))
+    factor = eval(factor)
     // pazi na eval !!!
 
     let newP = new Float32Array(3);
