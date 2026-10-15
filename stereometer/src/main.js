@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
-import { parse } from './parser'
+// import { parse } from './parser'
 import { world } from './world'
 import { rednerPoints } from './points'
 import { renderScene } from './caller'
@@ -8,7 +8,7 @@ import { renderScene } from './caller'
 import { basicSetup } from "codemirror"
 import { EditorView } from "@codemirror/view"
 
-import { genVerticesExp } from './regex'
+import { parse } from './regex'
 
 class UnexpectedError extends Error{
     constructor(name, message){
@@ -82,6 +82,26 @@ scene.add(bigCube.edges);
 */
 /* -    -   -   -   -   -   -  -  */
 
+let commands = await parse(
+    `cube ABCD_A1B1C1D1(color: #ff00ff);`
+    //H = 5/6 * DB1;
+    //cube DHIJ_D1B1C1D1(color: green);`
+);
+
+let objects = renderScene(commands)
+for (let object of objects){
+    if (object.geometry == "body"){
+        scene.add(object.edges)
+        scene.add(object.sides)
+    }else if (object.geometry == "point"){
+        scene.add(object.point)
+        scene.add(object.line)
+    }else{
+        throw new UnexpectedError("name?", "Non existant geometry parsed.")
+    }
+}
+console.log(world.toString())
+
 let names = rednerPoints()
 for (let name of names){
     scene.add(name)
@@ -93,16 +113,12 @@ controls.zoomToCursor = true;
 controls.cursorStyle = "grab";
 controls.update();
 
-console.log(world.toString())
-
 function animate(time){
     controls.update();
     names.forEach(p => p.quaternion.copy(camera.quaternion))
     renderer.render(scene, camera);
 }
 renderer.setAnimationLoop(animate);
-
-console.log(genVerticesExp(4, 2, 2))
 
 /* -    -   -   -   -   -   - */
 /*
@@ -141,28 +157,8 @@ const updateListener = EditorView.updateListener.of(update => {
 })
 */
 
-
-let commands = await parse(
-    `cube ABCD_A1B1C1D1(color: blue);
-    H = 5/6 * DB1;
-    cube DHIJ_D1B1C1D1(color: green);`
-);
-let objects = renderScene(commands)
-for (let object of objects){
-    console.log(object)
-    if (object.geometry == "body"){
-        scene.add(object.edges)
-        scene.add(object.sides)
-    }else if (object.geometry == "point"){
-        scene.add(object.point)
-        scene.add(object.line)
-    }else{
-        throw new UnexpectedError("name?", "Non existant geometry parsed.")
-    }
-}
-
 const view = new EditorView({
-    doc: "cube ABCD_A1B1C1D1(color: blue);",
+    doc: "nothing currently.",
     parent: document.getElementById("code-area"),
-    extensions: [basicSetup, updateListener]
+    extensions: [basicSetup]//, updateListener]
 })
