@@ -3,7 +3,7 @@ import { world } from './world'
 
 const abstractCube = {
     center: new THREE.Vector3(0, 0, 0),
-    edgeLength: 2.0,
+    edgeLength: 1.0,
 
     verticesArray: 
     [

@@ -126,13 +126,11 @@ async function parse(source){
                 await parseEquation(line)
                     .then(res => {
                         commands.push(res)
-                        console.log(commands)
                     })
             }else{
                 await parseFunction(line)
                     .then(res => {
                         commands.push(res)
-                        console.log(commands)
                     })
             }
         }

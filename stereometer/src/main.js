@@ -1,17 +1,15 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
-import { cube } from './cube'
-import { parse } from './parser'
-import { point } from './line'
+// import { parse } from './parser'
 import { world } from './world'
 import { rednerPoints } from './points'
 import { renderScene } from './caller'
 
 import { basicSetup } from "codemirror"
 import { EditorView } from "@codemirror/view"
-// import { parse } from "./parser"
-// import { renderScene } from "./caller"
-  
+
+import { parse } from './regex'
+
 class UnexpectedError extends Error{
     constructor(name, message){
         super();
@@ -37,52 +35,72 @@ renderer.setSize(rect.width, rect.height);
 document.getElementById("draw-area").appendChild(renderer.domElement);
 
 /* -    -   -   -   -   -   -   - */
-
+/*
 let commands = await parse(
     `cube ABCD_A1B1C1D1(color: blue);
     H = 5/6 * DB1;
     cube DHIJ_D1B1C1D1(color: green);`
 );
-// let objects = renderScene(commands)
-// for (let object of objects){
-//     console.log(object)
-//     if (object.geometry == "body"){
-//         scene.add(object.edges)
-//         scene.add(object.sides)
-//     }else if (object.geometry == "point"){
-//         scene.add(object.point)
-//         scene.add(object.line)
-//     }else{
-//         throw new UnexpectedError("name?", "Non existant geometry parsed.")
-//     }
-// }
+let objects = renderScene(commands)
+for (let object of objects){
+    console.log(object)
+    if (object.geometry == "body"){
+        scene.add(object.edges)
+        scene.add(object.sides)
+    }else if (object.geometry == "point"){
+        scene.add(object.point)
+        scene.add(object.line)
+    }else{
+        throw new UnexpectedError("name?", "Non existant geometry parsed.")
+    }
+}
 
-// let cube1 = cube(0x00ff00, "A", "B", "C", "D", "A1", "B1", "C1", "D1");
-// scene.add(cube1.sides);
-// scene.add(cube1.edges);
-// let cube2 = cube(0xffff00, "B", "E", "F", "C", "B1", "E1", "F1", "C1");
-// scene.add(cube2.sides);
-// scene.add(cube2.edges);
-// try{
-//     let p1= newPoint("J", 0.5, "A", "D")
-//     let p2 = newPoint("I1", 3/4, "A", "F1")
-//     scene.add(p1.point)
-//     scene.add(p1.line)
-//     scene.add(p2.point)
-//     scene.add(p2.line)
-// }catch (err){
-//     console.log(err)
-// }
+let cube1 = cube(0x00ff00, "A", "B", "C", "D", "A1", "B1", "C1", "D1");
+scene.add(cube1.sides);
+scene.add(cube1.edges);
+let cube2 = cube(0xffff00, "B", "E", "F", "C", "B1", "E1", "F1", "C1");
+scene.add(cube2.sides);
+scene.add(cube2.edges);
+try{
+    let p1= newPoint("J", 0.5, "A", "D")
+    let p2 = newPoint("I1", 3/4, "A", "F1")
+    scene.add(p1.point)
+    scene.add(p1.line)
+    scene.add(p2.point)
+    scene.add(p2.line)
+}catch (err){
+    console.log(err)
+}
 
-// let smallCube = cube(0x0000ff, "A", "G", "J", "H", "A1", "G1", "J1", "H1");
-// scene.add(smallCube.sides);
-// scene.add(smallCube.edges);
+let smallCube = cube(0x0000ff, "A", "G", "J", "H", "A1", "G1", "J1", "H1");
+scene.add(smallCube.sides);
+scene.add(smallCube.edges);
 
-// let bigCube = cube(0xffaa00, "I1", "E1", "K", "L", "M", "N", "O", "P");
-// scene.add(bigCube.sides);
-// scene.add(bigCube.edges);
+let bigCube = cube(0xffaa00, "I1", "E1", "K", "L", "M", "N", "O", "P");
+scene.add(bigCube.sides);
+scene.add(bigCube.edges);
+*/
+/* -    -   -   -   -   -   -  -  */
 
-/* -    -   -   -   -   -   --  -   */
+let commands = await parse(
+    `cube ABCD_A1B1C1D1(color: #ff00ff);`
+    //H = 5/6 * DB1;
+    //cube DHIJ_D1B1C1D1(color: green);`
+);
+
+let objects = renderScene(commands)
+for (let object of objects){
+    if (object.geometry == "body"){
+        scene.add(object.edges)
+        scene.add(object.sides)
+    }else if (object.geometry == "point"){
+        scene.add(object.point)
+        scene.add(object.line)
+    }else{
+        throw new UnexpectedError("name?", "Non existant geometry parsed.")
+    }
+}
+console.log(world.toString())
 
 let names = rednerPoints()
 for (let name of names){
@@ -95,8 +113,6 @@ controls.zoomToCursor = true;
 controls.cursorStyle = "grab";
 controls.update();
 
-console.log(world.toString())
-
 function animate(time){
     controls.update();
     names.forEach(p => p.quaternion.copy(camera.quaternion))
@@ -104,9 +120,8 @@ function animate(time){
 }
 renderer.setAnimationLoop(animate);
 
-
 /* -    -   -   -   -   -   - */
-
+/*
 const updateListener = EditorView.updateListener.of(update => {
     if (!update.docChanged) return
 
@@ -140,9 +155,10 @@ const updateListener = EditorView.updateListener.of(update => {
 
     
 })
+*/
 
 const view = new EditorView({
-    doc: "cube ABCD_A1B1C1D1(color: blue);",
+    doc: "nothing currently.",
     parent: document.getElementById("code-area"),
-    extensions: [basicSetup, updateListener]
+    extensions: [basicSetup]//, updateListener]
 })
