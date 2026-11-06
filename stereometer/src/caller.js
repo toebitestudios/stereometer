@@ -12,10 +12,10 @@ function renderScene(commands){
     for (let command of commands){
         if (command.geometry)
             objects.push(callbacks[command.geometry](command.params.color, ...command.vertices))
-        else if (command.newPoint){
+        else if (command.point){
             let [p, q] = splitVertices(command.line);
             objects.push(point(
-                command.newPoint, command.factor, p, q
+                command.point, command.factor, p, q
             ))
         }
     }

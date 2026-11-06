@@ -83,10 +83,11 @@ scene.add(bigCube.edges);
 /* -    -   -   -   -   -   -  -  */
 
 let commands = await parse(
-    `cube ABCD_A1B1C1D1(color: #ff00ff);`
-    //H = 5/6 * DB1;
+    `cube ABCD_A1B1C1D1(color: #ff00ff);
+    H = 0.25 * DB1;`
     //cube DHIJ_D1B1C1D1(color: green);`
 );
+console.log(commands)
 
 let objects = renderScene(commands)
 for (let object of objects){

@@ -1,34 +1,28 @@
-const geometriesData = {
-    cube: {
-        v: [8, 4, 4],
-        params: ["color"]
-    },
-    line: {
-        v: [2, 1, 1],
-        params: []
-    },
-    point: {
-        v: [1],
-        params: ["p", "q", "factor"]
-    }
-}
-// plane, sphere, cone, box
-
-const paramExps = {
-    color: "(color:\\s*)?(#[0-9A-Fa-f]{6}|[A-Za-z]+)"
-}
-
 const vertex = "(?:[A-Z](?:[0-9]|')?)|0";
 // za sad ne smije biti nikakvih razmaka između vertexa
-
-async function matchExpression(str, exp, msg){
-    let match = str.match(exp);
-    console.log(match)
-    if (!match) 
-        return Promise.reject(msg)
-    return Promise.resolve(match)
+function verticesExp(verticesGroups, name = "vertices", ){
+    let v = "(?<" + name + ">";
+    for (let i = 0; i < verticesGroups.length; i++){
+        v = v 
+            + "(?:" + vertex + ")" 
+            + "{" + verticesGroups[i] + "}_?\\s*";
+    }
+    v = v + ")";
+    return {
+        r: new RegExp(v),
+        s: v
+    }
 }
 
+const geometriesData = {
+    cube: {
+        v: [4, 4],
+        params: ["color"]
+    },
+}
+const paramExps = {
+    color: "(color:\\s*)(#[0-9A-Fa-f]{6}|[A-Za-z]+)"
+}
 function geometries(...geometries){
     let g = "(?<geometry>(";
     for (let i = 0; i < geometries.length; i++){
@@ -43,27 +37,32 @@ function geometries(...geometries){
     return new RegExp(regex0);
 }
 
-function verticesExp(noVertices, ...n){
-    let v = "(?<vertices>";
-    for (let i = 0; i < n.length; i++){
-        v = v 
-            + "(?:" + vertex + ")" 
-            + "{" + n[i] + "}_?\\s*";
-    }
-    v = v + ")";
-    return new RegExp(v);
+const equationsData = {
+    pointFromLine: {
+        left: verticesExp([1], "point").r,
+        right: new RegExp("(?<factor>[0-9]*\\.?[0-9]+)\\s*\\*\\s*" 
+            + verticesExp([1, 1], "line").s)
+    },  
+}
+
+
+// plane, sphere, cone, box
+
+async function matchExpression(str, exp, msg){
+    let match = str.match(exp);
+    //console.log(match)
+    if (!match) 
+        return Promise.reject(msg)
+    return Promise.resolve(match)
 }
 
 async function parseFunction(line){
     let tempVertices = "";
     let tempParams = "";
-    let command = {geometry: "", vertices: [], params: []};
+    let command = {geometry: "", vertices: [], params: {}};
     try{
-        await matchExpression(
-            line, 
-            functionFormExp(), 
-            "No such geometry."
-        ).then(res => {
+        await matchExpression(line, functionFormExp(), "No such geometry.")
+        .then(res => {
             command.geometry = res.groups.geometry;
 
             tempVertices = res.groups.vertices;
@@ -71,29 +70,48 @@ async function parseFunction(line){
         })
         
         // moglo bi biti problema s argumentima od verticesExp()
-        await matchExpression(
-            tempVertices, 
-            verticesExp(geometriesData[command.geometry].vertices), 
-            "Vertices " + tempVertices + " and " + command.geometry + " geometry not compatible."
-        ).then(()=>{
+        await matchExpression(tempVertices, verticesExp(geometriesData[command.geometry].v).r, "Vertices " + tempVertices + " and " + command.geometry + " geometry not compatible.")
+        .then(()=>{
             command.vertices = [...tempVertices.matchAll(vertex)].flat()
             // flat() nužan jer [...matchAll()] vraća niz jednočlanih nizova
         })
 
         for (let p of geometriesData[command.geometry].params){
-            await matchExpression(
-                tempParams,
-                paramExps[p],
-                "No " + p + " param."
-            ).then((res) =>
-                command.params.push(res)
-            ) 
+            await matchExpression(tempParams, paramExps[p],"No " + p + " param.")
+            .then((res) => {
+                res = res[0].split(/\s*:\s*/);
+                command.params[res[0]] = res[1];
+            }) 
         }
 
         return command
 
     }catch (err){
+        console.log(err)
         return err;
+    }
+}
+
+async function parseEquation(line){
+    let lr = line.split(/\s*=\s*/);
+    let left, right;
+    try{
+        for (let eqs of Object.entries(equationsData)){
+            left = lr[0].match(eqs[1].left)
+            right = lr[1].match(eqs[1].right)
+            console.log(lr[1].match(eqs[1].right))
+            if (left && right) break
+        }
+        if (!left || !right){
+            throw new Error("Equation wrong - temp message.")
+        }
+    }catch(err){
+        return err
+    }
+    return {
+        point: left.groups.point,
+        factor: right.groups.factor,
+        line: right.groups.line
     }
 }
 
