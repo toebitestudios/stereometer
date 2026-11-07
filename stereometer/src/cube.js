@@ -1,11 +1,9 @@
 import * as THREE from 'three'
 import { world } from './world'
+import { AbstractGeometry } from './classes'
 
-const abstractCube = {
-    center: new THREE.Vector3(0, 0, 0),
-    edgeLength: 1.0,
-
-    verticesArray: 
+const abstractCube = new AbstractGeometry(
+    "cube",
     [
         -0.5, -0.5, 0.5,
         0.5, -0.5, 0.5, 
@@ -17,38 +15,8 @@ const abstractCube = {
         0.5, 0.5, -0.5,
         -0.5, 0.5, -0.5
     ],
-    verticesVectorsArray:
-    [
-        new THREE.Vector3(-0.5, -0.5, 0.5),
-        new THREE.Vector3(0.5, -0.5, 0.5), 
-        new THREE.Vector3(0.5, -0.5, -0.5),
-        new THREE.Vector3(-0.5, -0.5, -0.5),
-
-        new THREE.Vector3(-0.5, 0.5, 0.5),
-        new THREE.Vector3(0.5, 0.5, 0.5), 
-        new THREE.Vector3(0.5, 0.5, -0.5),
-        new THREE.Vector3(-0.5, 0.5, -0.5)
-    ],
-    edgesArray: 
-    [
-        0, 1, 1, 2, 2, 3, 3, 1,
-        
-        1, 4, 2, 5, 3, 6, 4, 7,
-
-        4, 5, 5, 6, 6, 7, 7, 4
-    ],
-    sidesArray: 
-    [
-        0, 1, 2, 3,
-
-        0, 1, 4, 5,
-        1, 2, 5, 6,
-        2, 3, 6, 7,
-        3, 1, 7, 4,
-
-        4, 5, 6, 7
-    ]
-};
+    "scalars"
+)
 
 function round(vec){
     return new THREE.Vector3(
@@ -94,9 +62,9 @@ function getTransform(lines, cubePoints){
             cubePoints[3*p + 2],
         )
         let abstractP = new THREE.Vector3(
-            abstractCube.verticesArray[3*p + 0],
-            abstractCube.verticesArray[3*p + 1],
-            abstractCube.verticesArray[3*p + 2],
+            abstractCube.scalarCoordsArray[3*p + 0],
+            abstractCube.scalarCoordsArray[3*p + 1],
+            abstractCube.scalarCoordsArray[3*p + 2],
         )
 
         translation = abstractP.clone().sub(currentP)
@@ -107,9 +75,9 @@ function getTransform(lines, cubePoints){
             cubePoints[3*p + 2],
         )
         let abstractP = new THREE.Vector3(
-            abstractCube.verticesArray[3*p + 0],
-            abstractCube.verticesArray[3*p + 1],
-            abstractCube.verticesArray[3*p + 2],
+            abstractCube.scalarCoordsArray[3*p + 0],
+            abstractCube.scalarCoordsArray[3*p + 1],
+            abstractCube.scalarCoordsArray[3*p + 2],
         )
 
         let currentQ = new THREE.Vector3(
@@ -118,9 +86,9 @@ function getTransform(lines, cubePoints){
             cubePoints[3*q + 2],
         )
         let abstractQ = new THREE.Vector3(
-            abstractCube.verticesArray[3*q + 0],
-            abstractCube.verticesArray[3*q + 1],
-            abstractCube.verticesArray[3*q + 2],
+            abstractCube.scalarCoordsArray[3*q + 0],
+            abstractCube.scalarCoordsArray[3*q + 1],
+            abstractCube.scalarCoordsArray[3*q + 2],
         )
 
         let current = currentP.clone().sub(currentQ);
@@ -158,7 +126,7 @@ function generateCubeCoords(...vertices){
     let temp = new THREE.Vector3();
     for (let i = 0; i < 8; i++){
         temp = round(
-            abstractCube.verticesVectorsArray[i].clone().applyMatrix4(transform)
+            abstractCube.vectorCoordsArray[i].clone().applyMatrix4(transform)
         );
         coords.push(...temp)
         if (!world.points[vertices[i]]){ 
@@ -203,5 +171,7 @@ function cube(color, ...verticesNames){
         edges: lines
     }
 }
+
+
 
 export { cube };
