@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import { world } from './world'
 
 function noVertices(geometry){
     switch (geometry){
@@ -16,8 +17,10 @@ function toVectors(coords){
     if (l%3 !== 0)
         throw new Error("Coords length must be a multiple of three (thre values (x, y, z) represent a single point in space.")
     let vectorsArray = []
+    let v = new THREE.Vector3(0, 0, 0);
     for (let i = 0; i < l; i = i + 3){
-        vectorsArray.push(THREE.Vector3.fromArray(coords, i))
+        v.fromArray(coords, i)
+        vectorsArray.push(v.clone())
     }
     return vectorsArray
 }
@@ -52,6 +55,26 @@ class Geometry{
         this.params[param] = value
     }
 
+    findLines(){
+        let geomPoints = [];
+        let lines = []; // existing points
+        let v;
+        for (let i = 0; i < 8; i++){
+            v = world.points[this.vertices[i]]
+            if (v !== undefined){
+                geomPoints.push(...v)
+                lines.push(i)
+            }else{
+                geomPoints.push(null, null, null)
+            }
+        }
+
+        return{
+            geomPoints: geomPoints,
+            lines: lines
+        }
+    }
+
 }
 
 class AbstractGeometry{
@@ -80,3 +103,5 @@ class AbstractGeometry{
     }
 
 }
+
+export { Geometry, AbstractGeometry }
