@@ -1,6 +1,14 @@
 import * as THREE from 'three'
 import { world } from './world'
 
+function round(vec){
+    return new THREE.Vector3(
+        Number(vec.x.toFixed(3)),
+        Number(vec.y.toFixed(3)),
+        Number(vec.z.toFixed(3))
+    )
+}
+
 function noVertices(geometry){
     switch (geometry){
         case "cube":
@@ -22,6 +30,7 @@ function toVectors(coords){
         v.fromArray(coords, i)
         vectorsArray.push(v.clone())
     }
+    console.log(vectorsArray)
     return vectorsArray
 }
 
@@ -40,9 +49,42 @@ class GeometryError extends Error{
     }
 }
 
-class Geometry{
+
+class AbstractGeometry{
+
+    constructor(geometry){
+        this.geometry = geometry    
+    }
+
+    setCoords(coords, option){
+        let noV = noVertices(this.geometry)
+        if (option == "vectors"){
+            if (noV !== coords.length)
+                throw new GeometryError(`AbstractGeometry Error: Number of vertices required for ${this.geometry} (${noV}) does not match the length of given option (${option}) and coordinates - ${coords}.`)
+            this.vectorCoords = coords
+            this.scalarCoords = toScalars(coords)
+        }else if (option == "scalars"){
+            if (noV*3 !== coords.length)
+                throw new GeometryError(`AbstractGeometry Error: Number of vertices required for ${this.geometry} (${noV}) does not match the length of given option (${option}) and coordinates - ${coords}.`)
+            this.scalarCoords = coords
+            this.vectorCoords = toVectors(coords)
+        }   
+    }
+
+    setEdges(edges){
+        console.log("setEdges() not implemented yet.")
+    }
+
+    setSides(sides){
+        console.log("setEdges() not implemented yet.")
+    }
+
+}
+
+class Geometry extends AbstractGeometry{
 
     constructor(geometry, vertices){
+        super(geometry);
         let noV = noVertices(geometry);
         if (vertices.length == noV){
             this.vertices = vertices;
@@ -56,52 +98,84 @@ class Geometry{
     }
 
     findLines(){
-        let geomPoints = [];
-        let lines = []; // existing points
+        let vp, vq, // coords (vec) of points already in the world
+            p, q,   // ordinals of those points in geometry
+            ap, aq; // coords of abstract shape on that ords
         let v;
-        for (let i = 0; i < 8; i++){
+        let flag = -1;
+        for (let i = 0; i < this.vertices.length; i++){
             v = world.points[this.vertices[i]]
             if (v !== undefined){
-                geomPoints.push(...v)
-                lines.push(i)
-            }else{
-                geomPoints.push(null, null, null)
+                if (++flag){
+                    p = i
+                    vp = new THREE.Vector3(...v)
+                    ap = super.vectorCoords[i]
+                }else{
+                    q = i; 
+                    vq = new THREE.Vector3(...v)
+                    aq = super.vectorCoords[i]
+                    break;
+                }
             }
         }
 
         return{
-            geomPoints: geomPoints,
-            lines: lines
+            p: p, q: q,
+            vp: vp,vq: vq,
+            ap: ap, aq: aq
         }
     }
 
+    transformMatrix({p, q, vp, vq, ap, aq}){
+        let T = new THREE.Vector3(0, 0, 0);
+        let R = new THREE.Quaternion(0, 0, 0, 0);
+        let S = new THREE.Vector3(1.0, 1.0, 1.0);
+
+        let transform = new THREE.Matrix4();
+
+        if (p === undefined){
+        }else if (q === undefined){
+            T = ap.clone().sub(vp)
+        }else{
+            let pTOq = vp.clone().sub(vq);
+            let apTOaq = ap.clone().sub(aq);
+
+            let s = pTOq.length() / apTOaq.length();
+            S.set(s, s, s);
+            //
+            apTOaq.multiply(S);
+
+            R.setFromUnitVectors(
+                apTOaq.clone().normalize(),
+                pTOq.clone().normalize()
+            )
+            //
+            apTOaq.applyQuaternion(R);
+
+            T = p.clone().sub(ap.multiply(scale).applyQuaternion(R))
+        }
+        transform.compose(T, R, S);
+        return transform
+    }
+
+    genCoords(){
+        let transform = transformMatrix(findLines())
+    
+        let vectorCoords = [];
+        let scalarCoords = [];
+        let temp = new THREE.Vector3();
+        for (let i = 0; i < this.vertices.length; i++){
+            temp = round(super.vectorCoords[i].clone().applyMatrix4(transform));
+            vectorCoords.push(temp);
+            scalarCoords.push(...temp);
+            if (!world.points[this.vertices[i]]){
+                world.points[vertices[i]] = [...temp];
+                // DODAJ ili PROMJENI da su točke vektori
+            }
+        }
+
+        return transform
+    }
 }
 
-class AbstractGeometry{
-
-    constructor(geometry, coords, option){
-        let noV = noVertices(geometry)
-        if (option == "vectors"){
-            if (noV !== coords.length)
-                throw new GeometryError(`AbstractGeometry Error: Number of vertices required for ${geometry} (${noV}) does not match the length of given option (${option}) and coordinates - ${coords}.`)
-            this.vectorCoordsArray = coords
-            this.scalarCoordsArray = toScalars(coords)
-        }else if (option == "scalars"){
-            if (noV*3 !== coords.length)
-                throw new GeometryError(`AbstractGeometry Error: Number of vertices required for ${geometry} (${noV}) does not match the length of given option (${option}) and coordinates - ${coords}.`)
-            this.scalarCoordsArray = coords
-            this.vectorCoordsArray = toVectors(coords)
-        }       
-    }
-
-    setEdges(edges){
-        console.log("setEdges() not implemented yet.")
-    }
-
-    setSides(sides){
-        console.log("setEdges() not implemented yet.")
-    }
-
-}
-
-export { Geometry, AbstractGeometry }
+export { AbstractGeometry, Geometry }
