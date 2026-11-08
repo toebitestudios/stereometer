@@ -97,19 +97,20 @@ class Geometry{
         for (let i = 0; i < vertices.length; i++){
             v = world.points[vertices[i]]
             if (v !== undefined){
-                if (++flag){
+                if (flag++){
+                    q = i
+                    vq = new THREE.Vector3(...v)
+                    aq = avs[i]
+                }else{
                     p = i
                     vp = new THREE.Vector3(...v)
                     ap = avs[i]
-                }else{
-                    q = i; 
-                    vq = new THREE.Vector3(...v)
-                    aq = avs[i]
                     break;
                 }
             }
         }
 
+        console.log(p, q, vp, vq, ap, aq)
         return{
             p, q, vp, vq, ap, aq
         }
@@ -141,7 +142,7 @@ class Geometry{
             //
             apTOaq.applyQuaternion(R);
 
-            T = p.clone().sub(ap.multiply(scale).applyQuaternion(R))
+            T = vp.clone().sub(ap.multiply(S).applyQuaternion(R))
         }
         transform.compose(T, R, S);
         return transform
@@ -149,7 +150,7 @@ class Geometry{
 
     static genCoords(vertices, avs){
         let transform = Geometry.transformMatrix(Geometry.findLines(vertices, avs))
-
+        console.log(transform)
         let vectorCoords = [];
         let scalarCoords = [];
         let temp = new THREE.Vector3();
@@ -174,8 +175,8 @@ class Geometry{
         const material = new THREE.MeshBasicMaterial({
             color: params.color,
             transparent: true,
-            opacity: 0.5, // params
-            side: THREE.BackSide
+            opacity: 0.375, // params
+            side: THREE.DoubleSide
         });
         const sides = new THREE.Mesh(geometry, material);
         const edgesGeom = new THREE.EdgesGeometry(geometry);
