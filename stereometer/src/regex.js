@@ -120,17 +120,10 @@ async function parse(source){
     let commands = []
     try{
         for (let line of lines.slice(0, -1)){
-            if (line.includes("=")){
-                await parseEquation(line)
-                    .then(res => {
-                        commands.push(res)
-                    })
-            }else{
-                await parseFunction(line)
-                    .then(res => {
-                        commands.push(res)
-                    })
-            }
+            if (line.includes("="))
+                await parseEquation(line).then(res => {commands.push(res)})
+            else
+                await parseFunction(line).then(res => {commands.push(res)})
         }
     }catch (err){
         //console.log(err)
