@@ -87,7 +87,7 @@ class AbstractGeometry{
 
 class Geometry{
 
-    findLines(vertices, avs){
+    static findLines(vertices, avs){
         // vertices = names, avs = abstract vectors array
         let vp, vq, // coords (vec) of points already in the world
             p, q,   // ordinals of those points in geometry
@@ -115,7 +115,7 @@ class Geometry{
         }
     }
 
-    transformMatrix({p, q, vp, vq, ap, aq}){
+    static transformMatrix({p, q, vp, vq, ap, aq}){
         let T = new THREE.Vector3(0, 0, 0);
         let R = new THREE.Quaternion(0, 0, 0, 0);
         let S = new THREE.Vector3(1.0, 1.0, 1.0);
@@ -147,8 +147,8 @@ class Geometry{
         return transform
     }
 
-    genCoords(vertices, avs){
-        let transform = this.transformMatrix(this.findLines(vertices, avs))
+    static genCoords(vertices, avs){
+        let transform = Geometry.transformMatrix(Geometry.findLines(vertices, avs))
 
         let vectorCoords = [];
         let scalarCoords = [];
@@ -195,7 +195,7 @@ class Geometry{
             this.geometry = geometry
             this.vertices = vertices;
             this.params = params;
-            let {vectorCoords, scalarCoords, transform} = this.genCoords(vertices, avs)
+            let {vectorCoords, scalarCoords, transform} = Geometry.genCoords(vertices, avs)
             //super(geometry, vectorCoords, "vectors");
             let vc, sc = setCoords(geometry, vectorCoords, "vectors")
             this.vectorCoords = vc
