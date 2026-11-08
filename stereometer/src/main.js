@@ -5,8 +5,8 @@ import { world } from './world'
 import { rednerPoints } from './points'
 import { renderScene } from './caller'
 
-import { basicSetup } from "codemirror"
-import { EditorView } from "@codemirror/view"
+// import { basicSetup } from "codemirror"
+// import { EditorView } from "@codemirror/view"
 
 import { parse } from './regex'
 
@@ -158,8 +158,10 @@ const updateListener = EditorView.updateListener.of(update => {
 })
 */
 
+/*
 const view = new EditorView({
     doc: "nothing currently.",
     parent: document.getElementById("code-area"),
     extensions: [basicSetup]//, updateListener]
 })
+    */
