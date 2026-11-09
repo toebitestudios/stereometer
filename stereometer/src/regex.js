@@ -99,7 +99,7 @@ async function parseEquation(line){
         for (let eqs of Object.entries(equationsData)){
             left = lr[0].match(eqs[1].left)
             right = lr[1].match(eqs[1].right)
-            console.log(lr[1].match(eqs[1].right))
+            //console.log(lr[1].match(eqs[1].right))
             if (left && right) break
         }
         if (!left || !right){

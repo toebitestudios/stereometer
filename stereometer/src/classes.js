@@ -30,7 +30,6 @@ function toVectors(coords){
         v.fromArray(coords, i)
         vectorsArray.push(v.clone())
     }
-    console.log(vectorsArray)
     return vectorsArray
 }
 
@@ -110,7 +109,6 @@ class Geometry{
             }
         }
 
-        console.log(p, q, vp, vq, ap, aq)
         return{
             p, q, vp, vq, ap, aq
         }
@@ -150,7 +148,7 @@ class Geometry{
 
     static genCoords(vertices, avs){
         let transform = Geometry.transformMatrix(Geometry.findLines(vertices, avs))
-        console.log(transform)
+
         let vectorCoords = [];
         let scalarCoords = [];
         let temp = new THREE.Vector3();
