@@ -71,22 +71,35 @@ renderer.setAnimationLoop(animate);
 
 /* -    -   -   -   - */
 
-let cmd = document.getElementById("cmd")
+let cmd = document.getElementById("code-area")
 
-let highlightLine = document.createElement("div")
-highlightLine.id = "hl"
-highlightLine.innerHTML = "";
-//highlightLine.setAttribute("visible", "false");
-highlightLine.addEventListener("click", (e) => {
-    e.target.style.backgroundColor = "rgba(204, 204, 204, 0.5)";
-    e.target.style.zIndex = "0"
-    // treba i prebaciti fokus na textarea
-})
-cmd.appendChild(highlightLine)
-
+let hl = document.createElement("div") // hl = highlight line
 let code = document.createElement("textarea");
+
+hl.id = "hl"
+hl.innerHTML = "";
+
+cmd.appendChild(hl)
+
+let rows = 1;
+code.setAttribute("rows", rows);
+code.setAttribute("cols", "36");
+code.setAttribute("wrap", "hard");
 code.innerHTML = "cube ABCD_A1B1C1D1(color: #ff00ff)";
 cmd.appendChild(code)
-code.addEventListener("input", e => {
-    console.log(e.target.value)
+
+code.addEventListener("click", e => {
+    hl.style.backgroundColor = "rgba(204, 204, 204, 0.5)";
+    //console.log(code.value)
+})
+
+code.addEventListener("keyup", e => {
+    let key = e.code
+    let s = code.selectionStart - 1 
+    if (key == "Enter"){
+        code.setAttribute("rows", ++rows)
+    }else if (key == "Backspace" && code.value.at(s) == "\n"){
+        code.setAttribute("rows", --rows)
+    }
+    //hl.setAttribute("top", 0)
 })
